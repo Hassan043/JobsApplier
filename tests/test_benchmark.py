@@ -206,3 +206,10 @@ def test_unhashable_evidence_reference_is_flagged():
     with patch.dict(b.SCORERS,{'keyword':malformed}):
         report=b.evaluate_benchmark(MANIFEST,'dev',scorer_names=['keyword'])['reports']['keyword']
     assert report['failure_counts']['invalid_quote']==180
+
+
+def test_source_provenance_hash_is_cross_platform_but_data_hash_is_exact(tmp_path):
+    lf=tmp_path/'lf.py';crlf=tmp_path/'crlf.py'
+    lf.write_bytes(b'first\nsecond\n');crlf.write_bytes(b'first\r\nsecond\r\n')
+    assert b.source_digest(lf)==b.source_digest(crlf)
+    assert b.digest(lf)!=b.digest(crlf)

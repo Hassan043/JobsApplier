@@ -19,6 +19,11 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def source_digest(path):
+    """Hash source independent of Windows/POSIX checkout line endings."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n",b"\n")).hexdigest()
+
+
 def read_json(path):
     if path.stat().st_size>10_000_000:
         raise ValueError('Benchmark file exceeds 10 MB')
@@ -226,7 +231,8 @@ def evaluate_benchmark(path,split='dev',k=5,annotations=None,scorer_names=None):
             'families':len({r['family'] for r in selected.values()}),'judgments':len(selected)*len(bundle['profiles']),
             'label_origin':bundle['label_origin'],'manifest_sha256':bundle['manifest_hash'],'judgments_sha256':bundle['label_hash'],
             'environment':{'python':platform.python_version(),'platform':platform.system()},
-            'code_sha256':{n:digest(code_dir/n) for n in ['benchmark.py','models.py','scoring.py']},
+            'code_hash_mode':'source bytes with CRLF normalized to LF',
+            'code_sha256':{n:source_digest(code_dir/n) for n in ['benchmark.py','models.py','scoring.py']},
             'scorer_versions':{n:SCORER_VERSIONS[n] for n in names},'reports':reports,
             'limitations':['Authored synthetic scenarios and provisional labels; not independent real-world quality evidence.',
               'Candidate CVs are fictional. No private CVs, network access, model calls, or learned semantic matcher are used.',

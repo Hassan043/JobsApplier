@@ -101,3 +101,7 @@ CSV imports require complete pair coverage, valid labels/pay, and reviewer/ratio
 Use development cases for implementation. The test split holds out posting families, not candidate identities or every scenario type. Once its results have been inspected, call it an observed evaluation split. Do not tune to its failures and then keep describing it as a pristine final test; create a new version/final set before a later quality claim.
 
 No confidence interval or significance claim is supplied: the corpus is intentionally small and authored, and paired variants are correlated. A larger independently sampled/reviewed corpus is the next evidence milestone.
+
+## Cross-platform provenance
+
+Frozen dataset hashes verify exact input bytes. Source-code provenance hashes normalize CRLF to LF so Windows and Linux Git checkouts of the same code agree. They do not normalize other whitespace or content. Report metadata records this mode explicitly; timings still vary by environment.

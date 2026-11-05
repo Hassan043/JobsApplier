@@ -81,6 +81,6 @@ The local test suite now has 68 passing tests. Missing/duplicate labels, frozen-
 
 ## Portal extension and repository cleanup
 
-The current source inventory has 175 distinct entries with explicit implementation/access status. Remotive and Arbeitnow public-feed adapters are fixture-tested; they add source backlinks, request bounds, persistent refresh/cooldown, and local title filtering. See [coverage](PORTAL_COVERAGE.md). Most account/country portals remain unverified research/manual entries. The current local suite has 82 passing tests.
+The current source inventory has 175 distinct entries with explicit implementation/access status. Remotive and Arbeitnow public-feed adapters are fixture-tested; they add source backlinks, request bounds, persistent refresh/cooldown, and local title filtering. See [coverage](PORTAL_COVERAGE.md). Most account/country portals remain unverified research/manual entries. The current local suite has 83 passing tests.
 
 The clean GitHub main branch includes maintained v2 code and synthetic assets only; historical scripts are retained locally and ignored. See [provenance](PROVENANCE.md).
