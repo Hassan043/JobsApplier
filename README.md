@@ -43,3 +43,9 @@ These are synthetic scenarios, not real-world AI-quality evidence or human-rated
 ## Ownership and provenance
 
 This portfolio repository is maintained under `Hassan043`. The modular v2 workflow and authored benchmark are the maintained implementation. Historical scripts and personal assets are preserved locally but excluded from the clean repository. See [provenance](docs/PROVENANCE.md).
+
+## Portal expansion
+
+Run `python main.py portals` for the source inventory, or filter with `--group` / `--country`. The [coverage matrix](docs/PORTAL_COVERAGE.md) distinguishes maintained adapters, documented APIs, manual imports, reference resources, and unverified research entries.
+
+Read-only Remotive and Arbeitnow adapters are fixture-tested and available through `--feeds remotive arbeitnow`, with attribution, bounded requests, local caching, and cooldowns. Most listed portals do not yet have a native connector. No account scraping or automatic applications were added.

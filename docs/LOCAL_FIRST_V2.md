@@ -78,3 +78,9 @@ Outstanding: semantic retrieval/reranking, a representative labeled benchmark, s
 The new [JobFit protocol](../benchmarks/jobfit_v1/README.md) and [baseline report](BENCHMARK_RESULTS.md) provide 60 authored synthetic postings, 300 provisional judgments, family-separated dev/test evaluation, independent-review worksheets, and detailed failure reports. This expands the old three-case smoke evaluator rather than replacing it. The corpus is not an independently human-labeled real-world benchmark.
 
 The local test suite now has 68 passing tests. Missing/duplicate labels, frozen-input tampering, path escape, external CV indirection, family leakage, malformed scorer outputs, error denominators, metrics, and annotation handling are checked offline. Actual model-quality evaluation and representative independent labels remain outstanding.
+
+## Portal extension and repository cleanup
+
+The current source inventory has 175 distinct entries with explicit implementation/access status. Remotive and Arbeitnow public-feed adapters are fixture-tested; they add source backlinks, request bounds, persistent refresh/cooldown, and local title filtering. See [coverage](PORTAL_COVERAGE.md). Most account/country portals remain unverified research/manual entries. The current local suite has 82 passing tests.
+
+The clean GitHub main branch includes maintained v2 code and synthetic assets only; historical scripts are retained locally and ignored. See [provenance](PROVENANCE.md).

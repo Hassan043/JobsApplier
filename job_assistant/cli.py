@@ -11,6 +11,8 @@ from .models import Profile
 from .sources import load_jobs, fetch_pangian, fetch_boards
 from .scoring import baseline, draft_letter, SCORING_VERSION
 from .store import Store, STATUSES
+from .public_feeds import fetch_public_feed
+from .portals import select_portals
 from .report import write_reports
 
 ROOT=Path(__file__).resolve().parent.parent
@@ -45,10 +47,10 @@ def run(args):
         raise ValueError("--max-jobs must be between 1 and 1000")
     if args.ai and args.max_jobs is None:
         raise ValueError("--ai requires an explicit --max-jobs global limit")
-    if args.dry_run and (args.ai or args.sites or args.greenhouse or args.lever):
+    if args.dry_run and (args.ai or args.sites or args.greenhouse or args.lever or args.feeds):
         raise ValueError("--dry-run is strictly offline: use --input without --ai or --sites")
-    if not args.input and not args.sites and not args.greenhouse and not args.lever:
-        raise ValueError("Supply --input files, --greenhouse BOARD, --lever BOARD, or --sites pangian")
+    if not args.input and not args.sites and not args.greenhouse and not args.lever and not args.feeds:
+        raise ValueError("Supply --input files, --greenhouse BOARD, --lever BOARD, or --feeds remotive arbeitnow or --sites pangian")
     if args.cv and len(args.profile)!=1:
         raise ValueError("--cv override requires exactly one --profile; use resume_path for multiple CV profiles")
     profiles=[Profile.load(p,args.cv) for p in args.profile]
@@ -57,19 +59,23 @@ def run(args):
     if len(profiles)>20:
         raise ValueError("At most 20 candidate profiles per run")
     limit=args.max_jobs or 30
+    all_roles=list(dict.fromkeys(role for profile in profiles for role in profile.target_roles))
     jobs=[];errors=[]
     for path in args.input or []:
         imported,invalid=load_jobs(path);jobs.extend(imported);errors.extend(invalid)
     if args.sites:
-        queries=args.queries or profiles[0].target_roles[:3]
+        queries=args.queries or all_roles[:3]
         if not queries or len(queries)>5:
             raise ValueError("Live collection requires 1-5 explicit queries or target roles")
         collected,invalid=fetch_pangian(queries,limit)
         jobs.extend(collected);errors.extend(invalid)
     for provider,boards in (("greenhouse",args.greenhouse),("lever",args.lever)):
         if boards:
-            collected,invalid=fetch_boards(provider,boards,args.queries or profiles[0].target_roles,limit)
+            collected,invalid=fetch_boards(provider,boards,args.queries or all_roles,limit)
             jobs.extend(collected);errors.extend(invalid)
+    for provider in args.feeds or []:
+        collected,invalid=fetch_public_feed(provider,args.queries or all_roles,limit,Path(args.db).parent/"source_cache")
+        jobs.extend(collected);errors.extend(invalid)
     unique=[];seen_urls=set();seen_content=set();duplicates=0
     for job in jobs:
         if job.url in seen_urls or job.fingerprint in seen_content:
@@ -140,6 +146,7 @@ def parser():
     r.add_argument("--sites",nargs="+",choices=["pangian"],help="Explicit read-only live collection")
     r.add_argument("--greenhouse",nargs="+",help="Public employer Greenhouse board tokens, at most ten")
     r.add_argument("--lever",nargs="+",help="Public employer Lever site identifiers, at most ten")
+    r.add_argument("--feeds",nargs="+",choices=["remotive","arbeitnow"],help="Read-only public feeds with persistent refresh cache")
     r.add_argument("--queries",nargs="+")
     r.add_argument("--max-jobs",type=int,help="Global unique-job cap; required for AI")
     r.add_argument("--ai",action="store_true",help="Send supplied CV/job evidence to OpenAI; explicit opt-in")
@@ -148,6 +155,9 @@ def parser():
     r.add_argument("--dry-run",action="store_true",help="Offline preview; no AI, network, database, or output writes")
     r.add_argument("--db",default=str(ROOT/"data/jobs.sqlite3"))
     r.add_argument("--output",default=str(ROOT/"output"))
+    catalog=sub.add_parser("portals",help="Show researched versus implemented portal coverage; does not log in")
+    catalog.add_argument("--group");catalog.add_argument("--country");catalog.add_argument("--status")
+    catalog.add_argument("--json",action="store_true",help="Print structured catalog metadata")
     i=sub.add_parser("init-profile",help="Write an editable software/AI/mobile target profile")
     i.add_argument("path")
     t=sub.add_parser("status",help="Track your own review/application status locally")
@@ -162,6 +172,13 @@ def main(argv=None):
     args=parser().parse_args(argv)
     try:
         if args.command=="run":return run(args)
+        if args.command=="portals":
+            rows=select_portals(args.group,args.country,args.status)
+            if args.json:print(json.dumps(rows,indent=2,ensure_ascii=False))
+            else:
+                for row in rows:print(f"{row['id']}: {row['name']} | {row['status']} | {row['access']}")
+                print(f"{len(rows)} sources. Catalog coverage does not imply a working native connector.")
+            return 0
         if args.command=="init-profile":
             path=Path(args.path);path.parent.mkdir(parents=True,exist_ok=True)
             with path.open("x",encoding="utf-8") as f:json.dump(example_profile(),f,indent=2)

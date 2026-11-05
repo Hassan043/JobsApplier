@@ -1,6 +1,6 @@
 # JobFit v1: dev baseline report
 
-Generated: 2026-11-05T16:54:35.082778+00:00
+Generated: 2026-11-05T17:08:07.174327+00:00
 Labels: scenario_authored_provisional
 
 36 authored postings / 18 families / 5 fictional CVs / 180 judgments.
@@ -18,7 +18,7 @@ k = 5. Macro averages give equal weight to each candidate. Relevance threshold i
 
 Completed: 180/180; eligibility accuracy: 1.0000; missed-ineligible rate: 0.0000.
 Pay-normalization accuracy: 1.0000; exact-quote support: n/a over 0 excerpts.
-Local scoring latency (ms): p50 0.0569, p95 0.0930. This excludes network/model latency.
+Local scoring latency (ms): p50 0.0248, p95 0.0410. This excludes network/model latency.
 
 | Candidate | NDCG@k | Precision@k | Recall@k | MRR@k |
 |---|---|---|---|---|
@@ -84,7 +84,7 @@ First 20 flagged candidate/job cases are included below; the JSONL export contai
 
 Completed: 180/180; eligibility accuracy: 1.0000; missed-ineligible rate: 0.0000.
 Pay-normalization accuracy: 1.0000; exact-quote support: 1.0000 over 210 excerpts.
-Local scoring latency (ms): p50 0.2499, p95 0.4276. This excludes network/model latency.
+Local scoring latency (ms): p50 0.1037, p95 0.1968. This excludes network/model latency.
 
 | Candidate | NDCG@k | Precision@k | Recall@k | MRR@k |
 |---|---|---|---|---|
@@ -156,7 +156,7 @@ Code hashes:
 ```json
 {
   "benchmark.py": "fa98f625c19d3575933757e3e21cba6f20fb34c1386b258b5c8beb718fe1cb9b",
-  "models.py": "41e98c5ea79d5a6968d4907b47ec9cae7bd6de230fbe0906584aab8b1417fe17",
+  "models.py": "9d7f0559aa7eb453d66f7dde7fdf04c4d879a034ef91f405f4f99ae4a8aeb53b",
   "scoring.py": "51d22b1425bcdbe1ae623ca64c7a71629b02ef33d867a95bc48389bda51f3a6e"
 }
 ```

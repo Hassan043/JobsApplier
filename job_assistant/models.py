@@ -44,6 +44,7 @@ class Job:
     salary_min: float | None = None
     salary_max: float | None = None
     salary_period: str = ""
+    source_url: str = ""
 
     @classmethod
     def from_dict(cls, data, source="import"):
@@ -80,11 +81,13 @@ class Job:
         period = clean(data.get("salary_period")).lower()
         if period not in {"", "month", "year", "hour"}:
             raise ValueError("salary_period must be month, year, hour, or empty")
+        source_url=str(data.get("source_url") or "").strip()
+        if source_url:canonical_url(source_url)
         return cls(title, clean(data.get("company") or data.get("company_name")) or "Not specified",
                    canonical_url(data.get("url") or data.get("job_url") or data.get("job_link") or ""),
                    description, clean(data.get("source") or source), clean(data.get("location")), workplace,
                    [c.upper() for c in countries], clean(data.get("salary")), clean(data.get("currency")).upper(),
-                   clean(data.get("employer_country")).upper(), amounts[0], amounts[1], period)
+                   clean(data.get("employer_country")).upper(), amounts[0], amounts[1], period, source_url)
 
     @property
     def id(self):
@@ -95,6 +98,7 @@ class Job:
         identity = self.to_dict()
         identity.pop("url")
         identity.pop("source")
+        identity.pop("source_url")
         return hashlib.sha256(json.dumps(identity,sort_keys=True).casefold().encode()).hexdigest()
 
     def to_dict(self):

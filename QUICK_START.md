@@ -93,3 +93,13 @@ python benchmark.py annotations --output output/reviewer.csv
 ```
 
 Outputs default to separate output/benchmark-dev and output/benchmark-test directories. See [the full protocol](benchmarks/jobfit_v1/README.md). The 60-posting/300-judgment fixture is authored and synthetic; obtain independent labels before real quality claims. No live jobs, private CVs, network, or model calls are used.
+
+## 8. Inspect portal coverage and optional public feeds
+
+```powershell
+python main.py portals --group remote_boards
+python main.py portals --country AU --json
+python main.py run --profile examples/demo_profile.json --feeds remotive arbeitnow --queries engineer developer --max-jobs 30
+```
+
+The final command explicitly fetches a bounded live feed snapshot; it is not a synthetic benchmark. Remotive refresh is limited to every six hours and Arbeitnow to every hour locally, including failed-attempt cooldown. Fresh cached snapshots are filtered locally. Public-feed source links are retained in reports. Read [coverage and provider rules](docs/PORTAL_COVERAGE.md) before use. Account-based sites remain manual/research entries, not automatic login collectors.

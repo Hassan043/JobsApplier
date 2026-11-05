@@ -15,7 +15,7 @@ def write_reports(records, output):
     output.mkdir(parents=True,exist_ok=True)
     (output/"jobs.json").write_text(json.dumps(records,indent=2,ensure_ascii=False),encoding="utf-8")
     fields=["id","candidate","title","company","url","location","workplace","currency","salary","monthly_usd_minimum",
-            "baseline_score","ai_score","ai_status","eligibility","status","warnings","notes"]
+            "source","source_url","baseline_score","ai_score","ai_status","eligibility","status","warnings","notes"]
     with (output/"jobs.csv").open("w",newline="",encoding="utf-8-sig") as stream:
         writer=csv.DictWriter(stream,fieldnames=fields)
         writer.writeheader()
@@ -35,6 +35,8 @@ def write_reports(records, output):
         items="".join(f'<li><strong>{esc(m["skill"])}</strong><br>CV [{esc(m["evidence_id"])}]: {esc(m["candidate_quote"])}<br>Posting: {esc(m["job_quote"])}</li>' for m in matches)
         warnings="".join(f'<li>{esc(x)}</li>' for x in a["warnings"])
         gaps="".join(f'<li>{esc(x)}</li>' for x in a.get("missing_requirements",[]))
+        attribution=(f'<a href="{esc(job["source_url"])}" rel="noreferrer noopener">{esc(job["source"])}</a>'
+                     if job.get("source_url") else esc(job["source"]))
         cards.append(f'''<article><h2><a href="{esc(job['url'])}" rel="noreferrer noopener">{esc(job['title'])}</a></h2>
 <p>{esc(job['company'])} | {esc(job['location'])} | {esc(job['workplace'])} | {esc(job['salary'])}</p>
 <p><b>Candidate:</b> {esc(a['candidate'])} | <b>Status:</b> {esc(record.get('status','new'))}<br>
@@ -44,7 +46,7 @@ def write_reports(records, output):
 <details><summary>Missing/uncertain requirements</summary><ul>{gaps}</ul><p>Unverified profile skills: {esc(', '.join(a['unverified_profile_skills']))}</p></details>
 <details><summary>Review-only letter draft</summary><pre>{esc(a.get('cover_letter','No evidence-backed draft available'))}</pre></details>
 <details><summary>Job description</summary><p>{esc(job['description'])}</p></details>
-<p class="muted">Candidate hash: {esc(a['profile_hash'])}<br>Job ID: {esc(record['id'])} | Source: {esc(job['source'])}<br>{esc(record.get('notes',''))}</p></article>''')
+<p class="muted">Candidate hash: {esc(a['profile_hash'])}<br>Job ID: {esc(record['id'])} | Source: {attribution}<br>{esc(record.get('notes',''))}</p></article>''')
     page='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>Job shortlist - review workspace</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1040px;margin:40px auto;padding:0 20px;background:#f5f7fb;color:#172237}article{background:white;padding:24px;margin:20px 0;border:1px solid #d9e0eb;border-radius:12px}h1,h2{line-height:1.25}a{color:#1754b3}pre{white-space:pre-wrap;font:inherit}details{margin:12px 0}summary{cursor:pointer;font-weight:600}.muted{color:#647084;font-size:13px}li{margin:8px 0}</style>
