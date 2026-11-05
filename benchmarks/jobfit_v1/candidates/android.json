@@ -1,0 +1,38 @@
+{
+  "base_country": "PK",
+  "evidence": [
+    {
+      "id": "experience_1",
+      "text": "Built Kotlin apps with Jetpack Compose, Room, Coroutines, and Firebase. Three years developing Android applications."
+    }
+  ],
+  "name": "Fictional android candidate",
+  "open_to_relocation": true,
+  "preferred_currencies": [
+    "USD",
+    "EUR"
+  ],
+  "preferred_locations": [
+    "US",
+    "CA",
+    "GB",
+    "DE",
+    "AU",
+    "NZ"
+  ],
+  "profile_label": "android",
+  "remote_only": false,
+  "remote_preferred": true,
+  "skills": [
+    "Kotlin",
+    "Jetpack Compose",
+    "Room",
+    "Coroutines",
+    "Firebase"
+  ],
+  "target_monthly_usd": 2000,
+  "target_roles": [
+    "Android developer",
+    "mobile engineer"
+  ]
+}

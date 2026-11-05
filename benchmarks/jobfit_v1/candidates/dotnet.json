@@ -1,0 +1,38 @@
+{
+  "base_country": "PK",
+  "evidence": [
+    {
+      "id": "experience_1",
+      "text": "Built C# and ASP.NET APIs with SQL storage on Azure. Three years developing .NET services."
+    }
+  ],
+  "name": "Fictional dotnet candidate",
+  "open_to_relocation": true,
+  "preferred_currencies": [
+    "USD",
+    "EUR"
+  ],
+  "preferred_locations": [
+    "US",
+    "CA",
+    "GB",
+    "DE",
+    "AU",
+    "NZ"
+  ],
+  "profile_label": "dotnet",
+  "remote_only": false,
+  "remote_preferred": true,
+  "skills": [
+    "C#",
+    ".NET",
+    "ASP.NET",
+    "SQL",
+    "Azure"
+  ],
+  "target_monthly_usd": 2000,
+  "target_roles": [
+    "backend engineer",
+    ".NET developer"
+  ]
+}

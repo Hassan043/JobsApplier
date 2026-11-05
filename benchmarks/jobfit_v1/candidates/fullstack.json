@@ -1,0 +1,38 @@
+{
+  "base_country": "PK",
+  "evidence": [
+    {
+      "id": "experience_1",
+      "text": "Built TypeScript applications using React, Node.js, PostgreSQL, and Docker. Three years delivering web applications."
+    }
+  ],
+  "name": "Fictional fullstack candidate",
+  "open_to_relocation": true,
+  "preferred_currencies": [
+    "USD",
+    "EUR"
+  ],
+  "preferred_locations": [
+    "US",
+    "CA",
+    "GB",
+    "DE",
+    "AU",
+    "NZ"
+  ],
+  "profile_label": "fullstack",
+  "remote_only": false,
+  "remote_preferred": true,
+  "skills": [
+    "TypeScript",
+    "React",
+    "Node.js",
+    "PostgreSQL",
+    "Docker"
+  ],
+  "target_monthly_usd": 2000,
+  "target_roles": [
+    "full-stack engineer",
+    "full stack developer"
+  ]
+}

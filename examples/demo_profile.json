@@ -1,0 +1,35 @@
+{
+  "name": "Demo Candidate (synthetic)",
+  "base_country": "PK",
+  "target_roles": [
+    "backend engineer",
+    "software engineer"
+  ],
+  "skills": [
+    "Python",
+    "SQL",
+    "Docker",
+    "Kotlin"
+  ],
+  "evidence": [
+    {
+      "id": "project_api",
+      "text": "Built a Python API with SQL storage and Docker deployment."
+    }
+  ],
+  "remote_preferred": true,
+  "open_to_relocation": true,
+  "preferred_locations": [
+    "US",
+    "CA",
+    "GB",
+    "DE",
+    "AU",
+    "NZ"
+  ],
+  "preferred_currencies": [
+    "USD",
+    "EUR"
+  ],
+  "target_monthly_usd": 2000
+}

@@ -1,0 +1,30 @@
+{
+  "authored_on": "2026-11-05",
+  "benchmark_id": "jobfit_v1",
+  "candidates": {
+    "aiml": "candidates/aiml.json",
+    "android": "candidates/android.json",
+    "dotnet": "candidates/dotnet.json",
+    "fullstack": "candidates/fullstack.json",
+    "python": "candidates/python.json"
+  },
+  "hashes": {
+    "candidates/aiml.json": "11b7a0af6e471a87570bb4143b4af35cb61a58fa472863457e50e744cd8356ae",
+    "candidates/android.json": "e492c9a71e2837324b0359ed433b244428068bbca21d9b1c0b838840b456a7c1",
+    "candidates/dotnet.json": "9f07f5560f1a48aab79078379543ff211fd493e03ec9bd047431dde4c6da40e9",
+    "candidates/fullstack.json": "0eed9bc6d54b38f029ae4d110b89e0f05f37f7fed0b3088f4e67d045958b7fde",
+    "candidates/python.json": "a9f6e4df3a93040535fac5048d899d04493e27dca34b30a10108bfd79813e7f5",
+    "jobs.jsonl": "05df372222c8ce716205b7c4e0d82b704ac86cb62d4dc80e40e55bbdf2bcf5d8",
+    "judgments.jsonl": "874bdf7a9615622b4552cef3d95c3a21e1d164e5b6d4decd8006248ed93be3cf"
+  },
+  "jobs": "jobs.jsonl",
+  "judgments": "judgments.jsonl",
+  "provenance": "Authored synthetic scenarios; provisional labels, not real vacancies or independent human judgments.",
+  "relevance_threshold": 2,
+  "schema_version": 1,
+  "split_unit": "family_id",
+  "splits": [
+    "dev",
+    "test"
+  ]
+}

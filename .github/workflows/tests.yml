@@ -1,0 +1,19 @@
+name: Offline workflow tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest tests -q
+      - run: python evaluate.py
+      - run: python tools/build_jobfit_benchmark.py --check
+      - run: python benchmark.py validate
+      - run: python benchmark.py evaluate --split dev --output output/benchmark-dev

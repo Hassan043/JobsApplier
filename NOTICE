@@ -1,0 +1,7 @@
+Jobs Applier portfolio implementation
+Maintainer: Hassan043
+
+This repository contains the modular local-first v2 implementation and authored synthetic benchmark.
+Historical checkout provenance is documented in docs/PROVENANCE.md.
+Legacy scraper source, personal CVs, credentials, session files, generated personal reports,
+and original Git history are not included in the clean main branch.

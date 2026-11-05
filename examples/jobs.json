@@ -1,0 +1,60 @@
+[
+  {
+    "title": "Backend Engineer",
+    "company": "Example Global Tools",
+    "url": "https://example.com/jobs/backend?utm_source=demo",
+    "description": "Build Python APIs using SQL and Docker. Remote role open to Pakistan. Experience with queues is useful.",
+    "workplace": "remote",
+    "eligible_countries": [
+      "PK",
+      "US",
+      "DE"
+    ],
+    "employer_country": "US",
+    "currency": "USD",
+    "salary_min": 100000,
+    "salary_max": 140000,
+    "salary_period": "year",
+    "salary": "USD 100,000-140,000/year"
+  },
+  {
+    "title": "Backend Engineer",
+    "company": "Example Global Tools",
+    "url": "https://example.com/jobs/backend?utm_source=second",
+    "description": "Build Python APIs using SQL and Docker. Remote role open to Pakistan. Experience with queues is useful.",
+    "workplace": "remote",
+    "eligible_countries": [
+      "PK",
+      "US",
+      "DE"
+    ],
+    "employer_country": "US",
+    "currency": "USD",
+    "salary_min": 100000,
+    "salary_max": 140000,
+    "salary_period": "year",
+    "salary": "USD 100,000-140,000/year"
+  },
+  {
+    "title": "Software Engineer",
+    "company": "Example Regional Team",
+    "url": "https://example.org/jobs/software",
+    "description": "Python and SQL development. This remote position is US-only.",
+    "workplace": "remote",
+    "eligible_countries": [
+      "US"
+    ],
+    "currency": "USD",
+    "salary_min": 150000,
+    "salary_period": "year",
+    "salary": "USD 150,000/year"
+  },
+  {
+    "title": "Software Engineer",
+    "company": "Example Worldwide Studio",
+    "url": "https://example.net/jobs/developer",
+    "description": "Build software using Python. Location and pay details should be confirmed with the employer.",
+    "workplace": "remote",
+    "salary": "Not specified"
+  }
+]

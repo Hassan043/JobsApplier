@@ -1,0 +1,64 @@
+{
+  "name": "Hassan Ali",
+  "base_country": "PK",
+  "remote_preferred": true,
+  "remote_only": false,
+  "open_to_relocation": true,
+  "target_monthly_usd": 2000,
+  "preferred_currencies": [
+    "USD",
+    "EUR"
+  ],
+  "preferred_locations": [
+    "US",
+    "CA",
+    "GB",
+    "IE",
+    "DE",
+    "FR",
+    "NL",
+    "BE",
+    "LU",
+    "CH",
+    "AT",
+    "DK",
+    "SE",
+    "NO",
+    "FI",
+    "AU",
+    "NZ",
+    "SG",
+    "JP",
+    "KR",
+    "AE"
+  ],
+  "target_roles": [
+    "software engineer",
+    "full stack",
+    "full-stack",
+    "backend developer",
+    "backend engineer",
+    ".NET developer",
+    "applied AI",
+    "AI engineer",
+    "agentic AI",
+    "mobile developer",
+    "Android developer"
+  ],
+  "skills": [
+    "Python",
+    ".NET",
+    "C#",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "SQL",
+    "Kotlin"
+  ],
+  "excluded_terms": [
+    "executive assistant",
+    "customer success"
+  ],
+  "resume_path": "",
+  "evidence": []
+}

@@ -1,0 +1,76 @@
+# Configuration files with sensitive data
+config.py
+jobs-483606-75bebf488c8a.json
+config_example.py
+config_template.py
+credentials.json
+*.json
+!package.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# API Keys and secrets
+.env
+.secrets
+
+# Added by automation for security
+config*.py
+sessions/
+
+
+# Local-first review workspace: private CVs, state, generated reports
+data/
+output/
+profiles/
+curriculums/
+.pytest_cache/
+.env.*
+!.env.example
+!examples/*.json
+!tests/fixtures/*.json
+
+# Public authored benchmark artifacts only; private profiles/data stay ignored
+!benchmarks/jobfit_v1/**/*.json
+!benchmarks/jobfit_v1/*.json
+
+# Historical checkout retained locally, excluded from the clean portfolio branch
+/legacy_main.py
+/pangian.py
+/flexjobs.py
+/remote_co.py
+/bayt.py
+/browser_session.py
+/chatgpt.py
+/gsheet_api.py
+/pdf_code.py
+/ranking_utils.py
+/setup_sheet.py
+/REGEX_panguian.py
+/requirements.txt
+/SOP_GUIDE.md
+/PROJECT_SUMMARY.md
+/readme.pdf
+*.pdf
+*.docx
