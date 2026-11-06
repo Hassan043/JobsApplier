@@ -103,3 +103,8 @@ python main.py run --profile examples/demo_profile.json --feeds remotive arbeitn
 ```
 
 The final command explicitly fetches a bounded live feed snapshot; it is not a synthetic benchmark. Remotive refresh is limited to every six hours and Arbeitnow to every hour locally, including failed-attempt cooldown. Fresh cached snapshots are filtered locally. Public-feed source links are retained in reports. Read [coverage and provider rules](docs/PORTAL_COVERAGE.md) before use. Account-based sites remain manual/research entries, not automatic login collectors.
+
+
+## Interactive review workspace
+
+Run `python dashboard.py` and open http://127.0.0.1:8765. Start with the synthetic demo or add CV profiles and import job files. See [dashboard guide](docs/DASHBOARD.md) for the full workflow, separate local storage, and operating limits.

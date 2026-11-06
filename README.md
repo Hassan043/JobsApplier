@@ -4,6 +4,14 @@ A configurable workflow for software engineering, full-stack, .NET/backend, appl
 
 **Working now:** JSON/JSONL/CSV and saved JobPosting JSON-LD imports; public Greenhouse/Lever board adapters; local SQLite deduplication and profile-aware caching; evidence-linked keyword baseline; optional structured OpenAI assessment; review-only letter drafts; HTML/CSV/JSON reports; per-profile application tracking. The keyword baseline is not AI or a hiring probability.
 
+## Interactive dashboard
+
+```powershell
+python dashboard.py
+```
+
+Open http://127.0.0.1:8765 to add labeled CV profiles, import postings, review evidence-backed matches, filter salary/eligibility, edit and download drafts, and save application stages and notes. Start with **Explore synthetic demo**. The dashboard uses a separate private local database and makes no external AI calls or submissions. See the [dashboard guide](docs/DASHBOARD.md) for supported formats and limitations.
+
 ## Start in under a minute
 
 ```powershell
