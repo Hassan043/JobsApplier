@@ -2,7 +2,7 @@
 
 A configurable workflow for software engineering, full-stack, .NET/backend, applied/agentic AI, and mobile roles. Supports separate CV profiles for team members. Current personal defaults: Pakistan-based, remote preferred, relocation allowed, roughly USD 2,000/month gross as a soft target, worldwide employers, and no upper salary cap.
 
-**Working now:** JSON/JSONL/CSV and saved JobPosting JSON-LD imports; public Greenhouse/Lever board adapters; local SQLite deduplication and profile-aware caching; evidence-linked keyword baseline; optional structured OpenAI assessment; review-only letter drafts; HTML/CSV/JSON reports; per-profile application tracking. The keyword baseline is not AI or a hiring probability.
+**Working now:** JSON/JSONL/CSV and saved JobPosting JSON-LD imports; public Greenhouse/Lever board adapters; local SQLite deduplication and profile-aware caching; evidence-linked keyword baseline; optional structured OpenAI/local Ollama assessment; review-only letter drafts; HTML/CSV/JSON reports; per-profile application tracking. The keyword baseline is not AI or a hiring probability.
 
 ## Interactive dashboard
 
@@ -10,7 +10,7 @@ A configurable workflow for software engineering, full-stack, .NET/backend, appl
 python dashboard.py
 ```
 
-Open http://127.0.0.1:8765 to add labeled CV profiles, import postings, review evidence-backed matches, filter salary/eligibility, edit and download drafts, and save application stages and notes. Start with **Explore synthetic demo**. The dashboard uses a separate private local database and makes no external AI calls or submissions. See the [dashboard guide](docs/DASHBOARD.md) for supported formats and limitations.
+Open http://127.0.0.1:8765 to add labeled CV profiles, import postings, review evidence-backed matches, filter salary/eligibility, edit/version CV profiles, collect public postings, use opt-in AI, save/download drafts, and track application stages and notes. Start with **Explore synthetic demo**. The dashboard uses a separate private local database and uses local matching by default. External collection and AI require explicit controls; applications are submitted manually. See the [dashboard guide](docs/DASHBOARD.md) for supported formats and limitations.
 
 ## Start in under a minute
 
@@ -32,7 +32,7 @@ See [QUICK_START.md](QUICK_START.md) for live employer boards, multiple profiles
 
 - Remote does not imply worldwide eligibility. Explicit country restrictions, unknown eligibility, and relocation/work authorization are flagged separately.
 - Known USD annual salaries are divided by 12. Hourly pay is not annualized without contracted hours. Non-USD pay is not converted with guessed exchange rates. Missing/below-target salaries stay visible.
-- AI requires an explicit model, environment API key, global job cap, and global call budget. No paid API requests were made during development; AI tests use a fake client. Quotation validation checks source support, not semantic truth or overall suitability.
+- AI requires an explicit model, global job cap, and global call budget. Hosted OpenAI requires an environment API key; local Ollama requires an installed runtime/model. No paid API requests were made during development; provider transports are fixture-tested. Real-model semantic quality has not yet been measured. Quotation validation checks source support, not semantic truth or overall suitability.
 - Local reports contain private CV excerpts: keep them private. External collection and AI inference are explicit opt-ins. No automatic application submission, messages, or Google Sheets writes occur in v2.
 - Greenhouse live smoke check succeeded on 5 November 2026. Lever is fixture-tested; its live behavior was not verified. Pangian's live probe returned a non-JSON response and is currently unreliable. Collectors are bounded and report outages.
 
@@ -56,4 +56,10 @@ This portfolio repository is maintained under `Hassan043`. The modular v2 workfl
 
 Run `python main.py portals` for the source inventory, or filter with `--group` / `--country`. The [coverage matrix](docs/PORTAL_COVERAGE.md) distinguishes maintained adapters, documented APIs, manual imports, reference resources, and unverified research entries.
 
-Read-only Remotive and Arbeitnow adapters are fixture-tested and available through `--feeds remotive arbeitnow`, with attribution, bounded requests, local caching, and cooldowns. Most listed portals do not yet have a native connector. No account scraping or automatic applications were added.
+Read-only Remotive and Arbeitnow adapters passed live smoke checks on 6 November 2026 (three valid postings each) and available through `--feeds remotive arbeitnow`, with attribution, bounded requests, local caching, and cooldowns. Most listed portals do not yet have a native connector. No account scraping or automatic applications were added.
+
+## Portfolio tour
+
+See the [demo walkthrough](docs/PORTFOLIO_DEMO.md), [release validation](docs/RELEASE_VALIDATION.md), and [free local AI setup](docs/FREE_LOCAL_AI.md).
+
+![Dashboard with synthetic data](docs/media/overview.png)

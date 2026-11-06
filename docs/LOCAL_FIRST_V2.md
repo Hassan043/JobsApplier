@@ -84,3 +84,8 @@ The local test suite now has 68 passing tests. Missing/duplicate labels, frozen-
 The current source inventory has 175 distinct entries with explicit implementation/access status. Remotive and Arbeitnow public-feed adapters are fixture-tested; they add source backlinks, request bounds, persistent refresh/cooldown, and local title filtering. See [coverage](PORTAL_COVERAGE.md). Most account/country portals remain unverified research/manual entries. The current local suite has 83 passing tests.
 
 The clean GitHub main branch includes maintained v2 code and synthetic assets only; historical scripts are retained locally and ignored. See [provenance](PROVENANCE.md).
+
+
+## Dashboard release, 6 November 2026
+
+The interactive dashboard now supports CV profile revisions, file imports, explicit bounded public collection, keyword comparison between CVs, opt-in OpenAI or local Ollama matching, grounded missing-requirement excerpts, persistent draft revisions, and per-CV application tracking. Remotive and Arbeitnow each returned three valid postings in a live smoke check. Provider inference remains fixture-tested until a runtime/key is supplied; no real-model improvement claim is made. See [dashboard guide](DASHBOARD.md), [validation](RELEASE_VALIDATION.md), and [local AI setup](FREE_LOCAL_AI.md).

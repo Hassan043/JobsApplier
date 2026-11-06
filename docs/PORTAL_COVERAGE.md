@@ -9,8 +9,8 @@ A catalog entry is not a working connector. Most of the supplied names have not 
 
 - Existing Greenhouse employer-board collector: live smoke-tested earlier; explicit employer token required.
 - Existing Lever employer-board collector: offline fixture-tested; explicit site identifier; current first-100 limit.
-- New Remotive public-feed collector: offline fixture-tested, 15-second timeout, 8 MB cap, first-100 snapshot, persistent six-hour refresh/cooldown. Not live-probed in this change.
-- New Arbeitnow public-feed collector: offline fixture-tested, 15-second timeout, 8 MB cap, first page only, conservative one-hour refresh/cooldown. Not live-probed in this change.
+- New Remotive public-feed collector: offline fixture-tested, 15-second timeout, 8 MB cap, first-100 snapshot, persistent six-hour refresh/cooldown. Live smoke check succeeded on 2026-11-06 with 3 valid postings; no applicant-eligibility verification.
+- New Arbeitnow public-feed collector: offline fixture-tested, 15-second timeout, 8 MB cap, first page only, conservative one-hour refresh/cooldown. Live smoke check succeeded on 2026-11-06 with 3 valid postings; no applicant-eligibility verification.
 - Generic JSON/JSONL/CSV and saved JobPosting JSON-LD imports remain available when users can supply permitted data. This does not imply every portal offers an export.
 - Pangian is degraded after a non-JSON live response. FlexJobs, Remote.co, and Bayt historical scripts are local-only, not maintained native adapters in the new repository.
 
@@ -53,7 +53,7 @@ Provider references: [Remotive](https://github.com/remotive-com/remote-jobs-api)
 | Apec | country_boards | FR | research_required | manual_import |
 | APS Jobs | country_boards | AU | research_required | manual_import |
 | Arbeidsplassen | country_boards | NO | research_required | manual_import |
-| Arbeitnow | relocation | not scoped | fixture_tested | public_feed |
+| Arbeitnow | relocation | not scoped | live_smoke_verified | public_feed |
 | Arbetsformedlingen | country_boards | SE | research_required | manual_import |
 | Arc | talent_networks | not scoped | research_required | manual_import |
 | Askable | ai_contract | not scoped | research_required | manual_import |
@@ -176,7 +176,7 @@ Provider references: [Remotive](https://github.com/remotive-com/remote-jobs-api)
 | Remote OK | remote_boards | not scoped | research_required | manual_import |
 | Remote Rocketship | remote_boards | not scoped | research_required | manual_import |
 | Remote.co | employer_feeds | not scoped | legacy_unverified | manual_import |
-| Remotive | remote_boards | not scoped | fixture_tested | public_feed |
+| Remotive | remote_boards | not scoped | live_smoke_verified | public_feed |
 | RocketJobs | country_boards | PL | research_required | manual_import |
 | Rozee.pk | pakistan | PK | research_required | manual_import |
 | Sapo Emprego | country_boards | PT | research_required | manual_import |

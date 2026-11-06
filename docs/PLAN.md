@@ -55,3 +55,8 @@ A dry-run spends no model calls beyond the cap you set, writes no sheet row, and
 Implemented a versioned 60-posting/5-fictional-CV fixture with 300 provisional judgments, family-level dev/test isolation, frozen hashes, dual baseline evaluation, error analysis, and blind annotation worksheets. See [protocol](../benchmarks/jobfit_v1/README.md). This completes evaluation infrastructure and authored scenarios, not independent human labeling or representative real-world validation.
 
 Next: independently label/adjudicate the corpus, extend with permitted representative examples, and only then compare semantic matching against the frozen baseline. Do not tune on observed test results.
+
+
+## Portfolio release checkpoint — 6 November 2026
+
+Implemented desktop sidebar/results/detail workspace, responsive layouts, focused settings dialogs, overview/application tabs, grouped evidence, sorting, profile revisions, saved draft revisions, public collection/reassessment controls, and explicit OpenAI/local Ollama matching. The full 97-test suite and baseline development benchmark pass. Remotive/Arbeitnow live smoke checks succeeded. A synthetic screenshot tour and setup/validation guides are included. Real-model quality evaluation remains unmeasured until a runtime/model or hosted key is available; it is not represented as completed. See [release validation](RELEASE_VALIDATION.md).

@@ -47,8 +47,8 @@ ALIASES={
  'Public Employment (Poland)':['Public Employment'], 'Immigration info (Canada)':['Immigration info']}
 INFORMATION={'Immigration info (Canada)','Immigration NZ','Sweden.se','Monaco Economic Board','Careers.govt.nz'}
 DOCUMENTED={
- 'Remotive':('fixture_tested','public_feed','https://github.com/remotive-com/remote-jobs-api','Public feed cached for six hours; attribution retained. Live availability not verified in this change.'),
- 'Arbeitnow':('fixture_tested','public_feed','https://www.arbeitnow.com/blog/job-board-api','Bounded first page; remote is not worldwide eligibility. Live availability not verified in this change.'),
+ 'Remotive':('live_smoke_verified','public_feed','https://github.com/remotive-com/remote-jobs-api','Public feed cached for six hours; attribution retained. Live smoke check returned 3 valid postings on 2026-11-06; no eligibility verification.'),
+ 'Arbeitnow':('live_smoke_verified','public_feed','https://www.arbeitnow.com/blog/job-board-api','Bounded first page; remote is not worldwide eligibility. Live smoke check returned 3 valid postings on 2026-11-06; no eligibility verification.'),
  'Greenhouse':('live_smoke_verified','employer_board','https://docs.greenhouse.io/job-board','Explicit employer token required; one board smoke-tested 2026-11-05.'),
  'Lever':('fixture_tested','employer_board','https://github.com/lever/postings-api','Explicit employer site identifier; first 100 postings only.'),
  'Himalayas':('documented_not_implemented','public_api_research','https://himalayas.app/api','Documented API; apply-link/source/expiry requirements must be implemented before use.'),

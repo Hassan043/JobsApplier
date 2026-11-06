@@ -130,3 +130,100 @@ def test_static_assets_and_broken_job_file(client):
     body, ct = multipart({'profiles': json.dumps([profile])}, {'jobs': ('bad.json', b'{bad')})
     assert call('POST', '/api/import', body, {**auth, 'Content-Type': ct})[0] == 400
     assert len(json.loads(call('GET', '/api/state')[2])['records']) == 3
+
+
+def test_draft_revisions_survive_reload_and_are_isolated(client):
+    call, auth, workspace = client
+    call('POST', '/api/demo', b'{}', auth)
+    records = json.loads(call('GET', '/api/state')[2])['records']
+    record = records[0]
+    data = {'job_id': record['id'], 'profile_hash': record['assessment']['profile_hash'], 'text': 'First verified draft'}
+    assert call('POST', '/api/draft', json.dumps(data), auth)[0] == 200
+    data['text'] = 'Revised verified draft'
+    assert call('POST', '/api/draft', json.dumps(data), auth)[0] == 200
+    reloaded = Workspace(workspace.root).state()['records']
+    saved = next(r for r in reloaded if r['id'] == record['id'])
+    assert saved['draft']['text'] == 'Revised verified draft'
+    assert all(r['draft'] is None for r in reloaded if r['id'] != record['id'])
+    from job_assistant.store import Store
+    store = Store(workspace.db)
+    try:
+        assert store.connection.execute('SELECT COUNT(*) FROM draft_revisions').fetchone()[0] == 2
+    finally:
+        store.close()
+    data['profile_hash'] = 'unknown'
+    assert call('POST', '/api/draft', json.dumps(data), auth)[0] == 400
+
+
+def test_profile_edit_creates_revision_preserving_old_profile_and_tracking(client):
+    call, auth, workspace = client
+    call('POST', '/api/demo', b'{}', auth)
+    old = workspace.state()['profiles'][0]
+    detail = json.loads(call('POST', '/api/profile-detail', json.dumps({'id': old['id']}), auth)[2])
+    detail['profile_label'] = 'Updated target preferences'
+    detail['target_monthly_usd'] = 2500
+    body, ct = multipart({'profile': json.dumps(detail), 'previous': old['id']})
+    status, _, payload = call('POST', '/api/profile', body, {**auth, 'Content-Type': ct})
+    assert status == 200, payload
+    assert len(workspace.profile_paths()) == 2
+    state = workspace.state()
+    assert next(p for p in state['profiles'] if p['id'] == old['id'])['archived']
+    assert len(state['records']) == 3  # Earlier assessments remain available.
+    assert len([p for p in state['profiles'] if not p['archived']]) == 1
+    assert workspace.profile_detail(old['id'])['target_monthly_usd'] == 2000
+
+
+def test_ai_requires_consent_model_and_bounded_budget(client):
+    call, auth, workspace = client
+    call('POST', '/api/demo', b'{}', auth)
+    identifier = workspace.state()['profiles'][0]['id']
+    for options in [
+        {'ai': True, 'model': 'test-model'},
+        {'ai': True, 'consent': True, 'model': ''},
+        {'ai': True, 'consent': True, 'model': 'test-model', 'max_jobs': 31},
+        {'max_ai_calls': 6}, {'max_jobs': 101}, {'model': '--invalid'}, {'ai': 'true'},
+    ]:
+        status, _, _ = call('POST', '/api/reassess', json.dumps({'profiles': [identifier], 'options': options}), auth)
+        assert status == 400
+
+
+def test_dashboard_ai_grounding_and_global_budget(client):
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from job_assistant.ai import Assessor
+    call, auth, workspace = client
+    call('POST', '/api/demo', b'{}', auth)
+    profile = workspace.state()['profiles'][0]['id']
+    output = {'score': 70, 'matches': [{'skill': 'Python', 'evidence_id': 'project_api',
+              'candidate_quote': 'Built a Python API', 'job_quote': 'Build Python APIs'}], 'missing_requirements': []}
+    fake = SimpleNamespace(responses=SimpleNamespace(create=lambda **kwargs: SimpleNamespace(status='completed', output_text=json.dumps(output))))
+    with patch('job_assistant.cli.Assessor', side_effect=lambda model, budget: Assessor(model, budget, client=fake)):
+        status, _, payload = call('POST', '/api/reassess', json.dumps({'profiles': [profile], 'options': {
+            'ai': True, 'consent': True, 'model': 'fixture-model', 'max_jobs': 2, 'max_ai_calls': 1}}), auth)
+    assert status == 200, payload
+    assert json.loads(payload)['ai_calls'] == 1
+    records = workspace.state()['records']
+    completed = [r for r in records if r['assessment']['ai_status'] == 'completed']
+    assert len(completed) == 1
+    assert completed[0]['assessment']['ai_score'] == 70
+    assert completed[0]['assessment']['ai_matches'][0]['candidate_quote'] == 'Built a Python API'
+    assert any(r['assessment']['ai_status'] == 'budget_exhausted' for r in records)
+
+
+def test_collect_uses_fixed_providers_and_surfaces_warnings(client):
+    from unittest.mock import patch
+    from job_assistant.models import Job
+    call, auth, workspace = client
+    call('POST', '/api/demo', b'{}', auth)
+    profile = workspace.state()['profiles'][0]['id']
+    job = Job.from_dict({'title': 'Backend Engineer', 'company': 'Fixture employer',
+                        'url': 'https://example.org/fixture', 'description': 'Build Python APIs', 'source': 'fixture'})
+    payload = {'profiles': [profile], 'greenhouse': ['fixtureboard'], 'feeds': ['remotive'], 'queries': ['backend']}
+    with patch('job_assistant.cli.fetch_boards', return_value=([job], [])) as board, patch('job_assistant.cli.fetch_public_feed', return_value=([], ['Fixture feed unavailable'])) as feed:
+        status, _, raw = call('POST', '/api/collect', json.dumps(payload), auth)
+    assert status == 200, raw
+    assert board.call_args.args[0:2] == ('greenhouse', ['fixtureboard'])
+    assert feed.call_args.args[0] == 'remotive'
+    assert json.loads(raw)['source_warnings'] == ['Fixture feed unavailable']
+    for bad in [{'feeds':['unknown']}, {'greenhouse':['https://evil.example']}, {'lever':['--bad']}, {'greenhouse':['a','b','c','d']}, {'queries':['--bad'], 'feeds':['remotive']}]:
+        assert call('POST', '/api/collect', json.dumps({'profiles':[profile], **bad}), auth)[0] == 400

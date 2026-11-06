@@ -92,7 +92,12 @@ def run(args):
     if not unique:
         for message in errors:print("Warning: "+message,file=sys.stderr)
         raise ValueError("No valid jobs collected; no model calls, database writes, or report updates performed")
-    assessor=Assessor(args.model,args.max_ai_calls) if args.ai else None
+    provider=getattr(args,'provider','openai')
+    if args.ai and provider=='ollama':
+        from .local_ai import OllamaAssessor
+        assessor=OllamaAssessor(args.model,args.max_ai_calls)
+    else:
+        assessor=Assessor(args.model,args.max_ai_calls) if args.ai else None
     store=None if args.dry_run else Store(args.db)
     records=[];cache_hits=0
     try:
@@ -101,7 +106,7 @@ def run(args):
             if store and job_id != job.id:
                 job=store.get_job(job_id)
             for profile in profiles:
-                key=analysis_key(job,profile,args.model if args.ai else "offline")
+                key=analysis_key(job,profile,(("ollama:" if provider=="ollama" else "")+args.model) if args.ai else "offline")
                 result=store.cached(job_id,key) if store else None
                 if result is not None:
                     cache_hits+=1
@@ -109,6 +114,7 @@ def run(args):
                     result=baseline(job,profile)
                     if assessor and result["eligibility"]!="ineligible":
                         result.update(assessor.assess(job,profile))
+                        result["ai_provider"]=provider
                     elif assessor:
                         result["ai_status"]="skipped_ineligible"
                     matches=result.get("ai_matches") if result["ai_status"]=="completed" else result["matches"]
@@ -150,6 +156,7 @@ def parser():
     r.add_argument("--queries",nargs="+")
     r.add_argument("--max-jobs",type=int,help="Global unique-job cap; required for AI")
     r.add_argument("--ai",action="store_true",help="Send supplied CV/job evidence to OpenAI; explicit opt-in")
+    r.add_argument("--provider",choices=["openai","ollama"],default="openai",help="Hosted OpenAI or local Ollama; no automatic model download")
     r.add_argument("--model",default=os.environ.get("OPENAI_MODEL",""))
     r.add_argument("--max-ai-calls",type=int,default=5,help="Hard call cap across all jobs and profiles; SDK retries disabled")
     r.add_argument("--dry-run",action="store_true",help="Offline preview; no AI, network, database, or output writes")

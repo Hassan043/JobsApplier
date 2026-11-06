@@ -1,4 +1,4 @@
-"""Loopback-only review dashboard; no external collection or inference."""
+"""Loopback-only review dashboard; explicit bounded collection and optional inference."""
 import argparse
 from contextlib import redirect_stdout, redirect_stderr
 from email.parser import BytesParser
@@ -6,6 +6,9 @@ from email.policy import default
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import io
 import json
+import os
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 import secrets
 import tempfile
@@ -38,11 +41,14 @@ class Workspace:
             raise ValueError('Unknown CV profile')
         return [available[x] for x in ids]
 
-    def add_profile(self, data, cv=None):
+    def add_profile(self, data, cv=None, previous=None):
         if not isinstance(data, dict) or data.get('resume_path'):
             raise ValueError('Use uploaded CV text or inline evidence; resume_path must be empty')
+        if previous:
+            self.selected([previous])
         # Copy and validate privately before publishing a profile into the workspace.
         data = dict(data)
+        data.pop('previous_profile_id', None)
         with tempfile.TemporaryDirectory(dir=self.root) as folder:
             folder = Path(folder)
             if cv:
@@ -60,25 +66,121 @@ class Workspace:
             existing = next((p for p in self.profile_paths() if Profile.load(p).hash == profile.hash), None)
             if existing:
                 return existing.stem
+            if previous:
+                data['previous_profile_id'] = previous
             target = self.profiles / (uuid.uuid4().hex + '.json')
             with target.open('x', encoding='utf-8') as f:
                 json.dump(data, f, indent=2)
             return target.stem
 
-    def import_jobs(self, ids, suffix, content):
+    def options(self, options=None):
+        options = options or {}
+        if not isinstance(options, dict):
+            raise ValueError('Invalid matching settings')
+        ai = options.get('ai', False)
+        maximum = options.get('max_jobs', 30)
+        budget = options.get('max_ai_calls', 3)
+        if type(ai) is not bool or type(maximum) is not int or not 1 <= maximum <= 100:
+            raise ValueError('Job cap must be 1–100; AI opt-in must be boolean')
+        if type(budget) is not int or not 1 <= budget <= 5:
+            raise ValueError('AI call budget must be 1–5')
+        model = options.get('model', '')
+        if not isinstance(model, str) or (model and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,99}', model)):
+            raise ValueError('Invalid model name')
+        if ai and (not options.get('consent') is True or not model.strip()):
+            raise ValueError('Choose a model and explicitly consent to processing selected CV/job evidence with the chosen AI provider')
+        provider = options.get('provider', 'openai')
+        if provider not in {'openai', 'ollama'}:
+            raise ValueError('Choose OpenAI or local Ollama')
+        args = ['--max-jobs', str(maximum), '--provider', provider]
+        if ai:
+            if maximum > 30:
+                raise ValueError('AI mode supports at most 30 jobs per run')
+            args += ['--ai', '--model', model.strip(), '--max-ai-calls', str(budget)]
+        return args
+
+    def execute(self, ids, source_args, options=None):
         profiles = self.selected(ids)
+        settings = self.options(options)
+        args = parser().parse_args(['run', '--db', str(self.db),
+                                   '--output', str(self.root / 'reports')] + settings + source_args +
+                                  [arg for p in profiles for arg in ('--profile', str(p))])
+        output = io.StringIO()
+        try:
+            with redirect_stdout(output), redirect_stderr(output):
+                run(args)
+        except ValueError as exc:
+            notes = output.getvalue().strip()
+            raise ValueError(str(exc) + ('; ' + notes[:800] if notes else '')) from exc
+        return json.loads(output.getvalue().splitlines()[-1])
+
+    def import_jobs(self, ids, suffix, content, options=None):
         if suffix not in {'.json', '.jsonl', '.csv', '.html', '.htm'}:
             raise ValueError('Import JSON, JSONL, CSV, or saved JobPosting HTML')
         with tempfile.TemporaryDirectory(dir=self.root) as folder:
             path = Path(folder) / ('jobs' + suffix)
             path.write_bytes(content)
-            args = parser().parse_args(['run', '--input', str(path), '--db', str(self.db),
-                                       '--output', str(self.root / 'reports'), '--max-jobs', '100'] +
-                                      [arg for p in profiles for arg in ('--profile', str(p))])
-            output = io.StringIO()
-            with redirect_stdout(output), redirect_stderr(output):
-                run(args)
-            return json.loads(output.getvalue().splitlines()[-1])
+            return self.execute(ids, ['--input', str(path)], options)
+
+    def collect(self, data):
+        # Fixed providers and board tokens only: never accept arbitrary fetch URLs.
+        args = []
+        for provider in ('greenhouse', 'lever', 'feeds'):
+            values = data.get(provider, [])
+            if not isinstance(values, list) or len(values) > (2 if provider == 'feeds' else 3):
+                raise ValueError('Use at most 3 boards per provider and 2 public feeds')
+            if any(not isinstance(v, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,79}', v) for v in values):
+                raise ValueError('Use board identifiers, not URLs')
+            if provider == 'feeds' and any(v not in {'remotive', 'arbeitnow'} for v in values):
+                raise ValueError('Unsupported public feed')
+            if values:
+                args += ['--' + provider] + list(dict.fromkeys(values))
+        queries = data.get('queries', [])
+        if not isinstance(queries, list) or len(queries) > 5 or any(not isinstance(q, str) or not q.strip() or len(q) > 100 or q.startswith('-') for q in queries):
+            raise ValueError('Supply at most 5 role queries')
+        if queries:
+            args += ['--queries'] + queries
+        if not args or not any(data.get(p) for p in ('greenhouse', 'lever', 'feeds')):
+            raise ValueError('Select a public feed or employer board')
+        return self.execute(data.get('profiles'), args, data.get('options'))
+
+    def reassess(self, data):
+        if not self.db.exists():
+            raise ValueError('Import jobs before reassessing')
+        store = Store(self.db)
+        try:
+            jobs = [r['job'] for r in store.records()]
+        finally:
+            store.close()
+        return self.import_jobs(data.get('profiles'), '.json', json.dumps(jobs).encode(), data.get('options'))
+
+    def profile_detail(self, identifier):
+        path = self.selected([identifier])[0]
+        return json.loads(path.read_text(encoding='utf-8'))
+
+    def draft(self, data):
+        text = data.get('text')
+        if not isinstance(text, str) or len(text) > 30000:
+            raise ValueError('Draft must be text, at most 30,000 characters')
+        if not self.db.exists():
+            raise ValueError('Import jobs first')
+        store = Store(self.db)
+        try:
+            known = {json.loads(row[0])['profile_hash'] for row in store.connection.execute(
+                'SELECT result FROM analyses WHERE job_id=?', (data.get('job_id'),))}
+            if data.get('profile_hash') not in known:
+                raise ValueError('Unknown job/CV pair')
+            self.draft_table(store)
+            with store.connection:
+                cur = store.connection.execute('INSERT INTO draft_revisions(job_id,profile_hash,text,created_at) VALUES(?,?,?,?)',
+                    (data['job_id'], data['profile_hash'], text, datetime.now(timezone.utc).isoformat()))
+            return {'revision': cur.lastrowid}
+        finally:
+            store.close()
+
+    @staticmethod
+    def draft_table(store):
+        store.connection.execute('CREATE TABLE IF NOT EXISTS draft_revisions (revision INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT NOT NULL, profile_hash TEXT NOT NULL, text TEXT NOT NULL, created_at TEXT NOT NULL)')
 
     def demo(self):
         data = json.loads((ROOT / 'examples/demo_profile.json').read_text(encoding='utf-8'))
@@ -91,10 +193,15 @@ class Workspace:
             p = Profile.load(path)
             profiles.append({'id': path.stem, 'name': p.name, 'label': p.label, 'hash': p.hash,
                              'roles': p.target_roles})
+        superseded = {self.profile_detail(p['id']).get('previous_profile_id') for p in profiles}
+        for profile in profiles:
+            profile['archived'] = profile['id'] in superseded
         records = []
         if self.db.exists():
             store = Store(self.db)
             try:
+                self.draft_table(store)
+                drafts = {(r['job_id'], r['profile_hash']): dict(r) for r in store.connection.execute('SELECT * FROM draft_revisions ORDER BY revision')}
                 for row in store.records():
                     current = version(Job.from_dict(row['job']))
                     latest = {}
@@ -102,11 +209,11 @@ class Workspace:
                         if result['job_version'] == current:
                             latest.setdefault(result['profile_hash'], result)
                     for result in latest.values():
-                        records.append({'id': row['id'], 'job': row['job'], 'assessment': result,
+                        records.append({'id': row['id'], 'job': row['job'], 'assessment': result, 'draft': drafts.get((row['id'], result['profile_hash'])),
                                         **row['applications'].get(result['profile_hash'], {'status': 'new', 'notes': ''})})
             finally:
                 store.close()
-        return {'profiles': profiles, 'records': sorted_records(records), 'statuses': sorted(STATUSES)}
+        return {'profiles': profiles, 'records': sorted_records(records), 'statuses': sorted(STATUSES), 'ai_configured': bool(os.environ.get('OPENAI_API_KEY')), 'default_model': os.environ.get('OPENAI_MODEL', '')}
 
     def status(self, data):
         notes = data.get('notes', '')
@@ -196,10 +303,18 @@ def make_server(workspace, port=8765):
                         else:
                             fields[key] = content.decode('utf-8')
                     if self.path == '/api/profile':
-                        result = {'id': workspace.add_profile(json.loads(fields['profile']), files.get('cv'))}
+                        result = {'id': workspace.add_profile(json.loads(fields['profile']), files.get('cv'), fields.get('previous') or None)}
                     else:
                         suffix, content = files['jobs']
-                        result = workspace.import_jobs(json.loads(fields['profiles']), suffix, content)
+                        result = workspace.import_jobs(json.loads(fields['profiles']), suffix, content, json.loads(fields.get('options', '{}')))
+                elif self.path == '/api/collect':
+                    result = workspace.collect(json.loads(body))
+                elif self.path == '/api/reassess':
+                    result = workspace.reassess(json.loads(body))
+                elif self.path == '/api/profile-detail':
+                    result = workspace.profile_detail(json.loads(body)['id'])
+                elif self.path == '/api/draft':
+                    result = workspace.draft(json.loads(body))
                 elif self.path == '/api/demo':
                     result = workspace.demo()
                 elif self.path == '/api/status':
